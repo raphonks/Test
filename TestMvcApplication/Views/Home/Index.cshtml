@@ -1,0 +1,55 @@
+﻿@model IEnumerable<RaphaelPinho.Twitter.Entities.Tweet>
+@{
+    ViewBag.Title = "Home Page";
+}
+@section featured {
+    <section class="featured">
+        <div class="content-wrapper">
+            <hgroup class="title">
+                <h1>@ViewBag.Title.</h1>
+                <h2>@ViewBag.Message</h2>
+            </hgroup>
+        </div>
+    </section>
+}
+@{
+    foreach (var item in Model)
+    {
+        <div class="tweetBox">
+            <div class="user">
+                @(item.User.ScreenName)
+            </div>
+            <div class="date">
+                @(item.CreatedAt.ToString("MMM dd")) - @(item.CreatedAt.ToShortTimeString())
+            </div>
+            <div class="text">
+                @(item.Text)
+            </div>
+        </div>
+    }
+}
+
+<div class="tweetStats">
+    <div class="cell name"><strong>User</strong></div>
+    <div class="cell"><strong>Tweets</strong></div>
+    <div class="cell"><strong>Mentions</strong></div>
+    <div class="cell"><strong>Tweets with Mentions</strong></div>
+    <div class="cell"><strong>Distinct Mentions</strong></div>
+    @{
+        var groupBy = Model.GroupBy(x => x.User.ScreenName);
+        foreach (var item in groupBy)
+        {
+        <div class="cell name">@(item.Key)</div>
+        <div class="cell">@(item.Count())</div>
+        <div class="cell">@(item.SelectMany(x => x.Entities.UserMentions).Count())</div>
+        <div class="cell">@(item.Where(x => !x.Entities.UserMentions.Count().Equals(0)).Count())</div>
+        <div class="cell">@(item.SelectMany(x => x.Entities.UserMentions).Select(x => x.ScreenName).Distinct().Count())</div>
+        }
+    }
+
+    <div class="cell name">Total (@(groupBy.Count()))</div>
+    <div class="cell">@(Model.Count())</div>
+    <div class="cell">@(Model.SelectMany(x => x.Entities.UserMentions).Count())</div>
+    <div class="cell">@(Model.Where(x => !x.Entities.UserMentions.Count().Equals(0)).Count())</div>
+    <div class="cell">@(Model.SelectMany(x => x.Entities.UserMentions).Select(x => x.ScreenName).Distinct().Count())</div>
+</div>
